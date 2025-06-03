@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app
+  namespace: "default"
+spec:
+  selector:
+    matchLabels:
+      app: sample-app
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: sample-app
+    spec:
+      containers:
+        - image: "hashicorp/http-echo"
+          name: sample-app
+          imagePullPolicy: "Always"
+          args: 
+            - -text="hello world"
+          ports:
+            - containerPort: 5678
+              name: http-port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-app-service
+  namespace: "default"
+spec:
+  type: ClusterIP
+  ports:
+    - name: http-port
+      protocol: TCP
+      port: 5678
+      targetPort: 5678
+  selector:
+    app: sample-app
